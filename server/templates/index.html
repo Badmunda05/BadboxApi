@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BadBox</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f2ee; --surface:#fff; --card:#faf9f7; --border:#e8e3dc;
+  --accent:#1a1a1a; --punch:#ff3d00; --text:#1a1a1a; --muted:#999;
+  --ok:#00c853; --err:#ff3d00;
+  --mono:'DM Mono',monospace; --sans:'Sora',sans-serif; --r:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;overflow-x:hidden;}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 40px;
+  background:rgba(245,242,238,.92);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1rem;letter-spacing:-.3px;}
+.logo-box{
+  width:30px;height:30px;background:var(--accent);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;
+}
+.nav-links{display:flex;gap:4px;}
+.nav-a{
+  font-family:var(--mono);font-size:.62rem;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;padding:6px 12px;
+  border-radius:100px;border:1px solid transparent;transition:all .18s;
+}
+.nav-a:hover{color:var(--text);border-color:var(--border);background:var(--surface);}
+
+/* HERO GRID */
+.hero{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;
+  max-width:1080px;margin:0 auto;padding:64px 40px 48px;
+}
+
+/* LEFT */
+.badge{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--mono);font-size:.6rem;letter-spacing:1px;text-transform:uppercase;
+  background:var(--accent);color:#fff;padding:5px 14px;border-radius:100px;margin-bottom:22px;
+}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:var(--punch);}
+
+h1{
+  font-size:clamp(2.6rem,4vw,4rem);font-weight:700;
+  line-height:1.05;letter-spacing:-2px;margin-bottom:18px;
+}
+h1 em{font-style:normal;color:var(--punch);}
+
+.desc{
+  font-size:.9rem;font-weight:300;color:var(--muted);
+  line-height:1.7;max-width:360px;margin-bottom:28px;
+}
+
+.stats-row{display:flex;gap:12px;flex-wrap:wrap;}
+.stat-pill{
+  padding:10px 18px;background:var(--surface);
+  border:1px solid var(--border);border-radius:12px;text-align:center;
+}
+.stat-n{font-family:var(--mono);font-size:1.2rem;font-weight:500;display:block;}
+.stat-l{font-family:var(--mono);font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
+
+/* UPLOAD CARD */
+.upload-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:24px;padding:28px;
+  box-shadow:0 2px 32px rgba(0,0,0,.05);
+}
+
+.dz{
+  border:2px dashed var(--border);border-radius:var(--r);
+  padding:36px 20px;text-align:center;cursor:pointer;
+  background:var(--card);transition:all .2s;
+}
+.dz:hover,.dz.over{border-color:var(--accent);background:rgba(26,26,26,.02);}
+.dz.over{transform:scale(1.01);}
+
+.dz-box{
+  width:56px;height:56px;margin:0 auto 14px;
+  background:var(--accent);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;box-shadow:0 6px 20px rgba(0,0,0,.12);
+}
+.dz-t{font-weight:600;font-size:.95rem;margin-bottom:5px;}
+.dz-s{font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-bottom:18px;}
+
+input[type=file]{display:none;}
+.btn-browse{
+  background:var(--accent);color:#fff;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.5px;text-transform:uppercase;
+  border:none;padding:10px 22px;border-radius:9px;cursor:pointer;transition:all .18s;
+}
+.btn-browse:hover{background:#333;transform:translateY(-1px);box-shadow:0 5px 16px rgba(0,0,0,.12);}
+
+.url-row{display:flex;gap:8px;margin-top:10px;}
+.url-input{
+  flex:1;background:var(--card);border:1px solid var(--border);
+  border-radius:9px;padding:9px 13px;
+  color:var(--text);font-family:var(--mono);font-size:.72rem;
+  outline:none;transition:border-color .18s;
+}
+.url-input::placeholder{color:var(--muted);}
+.url-input:focus{border-color:var(--accent);}
+.btn-go{
+  background:var(--card);border:1px solid var(--border);color:var(--text);
+  font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;
+  padding:9px 16px;border-radius:9px;cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.btn-go:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* PROG */
+.prog{margin-top:12px;display:none;}
+.prog-track{height:2px;background:var(--border);border-radius:1px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--accent);border-radius:1px;width:0;transition:width .22s;}
+.prog-lbl{font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-top:6px;text-align:center;}
+
+/* RESULT */
+.result{
+  margin-top:12px;background:var(--card);
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;display:none;animation:up .22s ease;
+}
+@keyframes up{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.result.ok{border-color:rgba(0,200,83,.35);}
+.result.fail{border-color:rgba(255,61,0,.35);}
+.res-lbl{font-family:var(--mono);font-size:.55rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.res-row{display:flex;gap:8px;}
+.res-url{
+  flex:1;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:8px 11px;
+  color:var(--punch);font-family:var(--mono);font-size:.72rem;outline:none;min-width:0;
+}
+.btn-copy{
+  background:var(--surface);border:1px solid var(--border);color:var(--text);
+  font-family:var(--mono);font-size:.6rem;text-transform:uppercase;
+  padding:8px 13px;border-radius:8px;cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.btn-copy:hover,.btn-copy.ok{background:var(--ok);color:#fff;border-color:var(--ok);}
+.res-preview{margin-top:9px;}
+.res-preview img{max-width:100%;max-height:110px;border-radius:7px;object-fit:contain;display:block;}
+.res-meta{display:flex;gap:10px;margin-top:7px;flex-wrap:wrap;}
+.rm{font-family:var(--mono);font-size:.6rem;color:var(--muted);}
+.rm span{color:var(--text);margin-left:3px;}
+
+/* HISTORY */
+.section{position:relative;z-index:1;max-width:1080px;margin:0 auto 56px;padding:0 40px;}
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.sec-title{font-weight:600;font-size:.95rem;letter-spacing:-.2px;}
+.sec-badge{
+  font-family:var(--mono);font-size:.55rem;color:var(--ok);
+  border:1px solid rgba(0,200,83,.3);padding:2px 8px;border-radius:100px;margin-left:8px;
+}
+.btn-clr{
+  font-family:var(--mono);font-size:.6rem;color:var(--muted);
+  background:none;border:1px solid var(--border);padding:4px 10px;
+  border-radius:100px;cursor:pointer;transition:all .18s;
+}
+.btn-clr:hover{color:var(--err);border-color:var(--err);}
+
+.hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.hcard{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px;
+  cursor:pointer;transition:all .2s;animation:up .22s ease;
+}
+.hcard:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.07);}
+.hcard-img{
+  width:100%;height:90px;border-radius:9px;
+  background:var(--card);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;margin-bottom:10px;overflow:hidden;
+}
+.hcard-img img{width:100%;height:100%;object-fit:cover;}
+.hcard-name{font-family:var(--mono);font-size:.68rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.hcard-url{font-family:var(--mono);font-size:.6rem;color:var(--punch);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px;}
+.hcard-foot{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.56rem;color:var(--muted);}
+
+.empty{
+  grid-column:1/-1;text-align:center;padding:44px;
+  font-family:var(--mono);font-size:.72rem;color:var(--muted);
+  border:1px dashed var(--border);border-radius:var(--r);
+}
+
+/* API */
+.api-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.api-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;}
+.api-t{font-weight:600;font-size:.88rem;margin-bottom:3px;}
+.api-s{font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-bottom:12px;}
+pre{
+  background:var(--accent);color:#a8ff78;
+  border-radius:10px;padding:14px;
+  font-family:var(--mono);font-size:.68rem;overflow-x:auto;line-height:1.65;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:22px;left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:var(--accent);color:#fff;
+  font-family:var(--mono);font-size:.68rem;
+  padding:9px 20px;border-radius:100px;z-index:999;
+  opacity:0;transition:all .22s;pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+footer{
+  position:relative;z-index:1;border-top:1px solid var(--border);
+  padding:18px 40px;display:flex;justify-content:space-between;align-items:center;
+}
+.fl{font-family:var(--mono);font-size:.6rem;color:var(--muted);}
+.fr a{font-family:var(--mono);font-size:.6rem;color:var(--muted);text-decoration:none;margin-left:18px;}
+.fr a:hover{color:var(--text);}
+
+@media(max-width:720px){
+  .hero{grid-template-columns:1fr;padding:40px 20px 32px;gap:28px;}
+  .section{padding:0 20px;}
+  nav{padding:12px 20px;}
+  footer{flex-direction:column;gap:8px;padding:14px 20px;}
+  .api-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><div class="logo-box">📦</div>BadBox</div>
+  <div class="nav-links">
+    <a class="nav-a" href="#upload">Upload</a>
+    <a class="nav-a" href="#history">History</a>
+    <a class="nav-a" href="#api">API</a>
+    <a class="nav-a" href="/health" target="_blank">Status</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="upload">
+  <div>
+    <div class="badge"><span class="badge-dot"></span>Self-Hosted · Private · Always On</div>
+    <h1>Your files.<br>Your <em>server.</em></h1>
+    <p class="desc">Upload any file and get a permanent direct link — stored on your own server, fully in your control. No third parties.</p>
+    <div class="stats-row">
+      <div class="stat-pill"><span class="stat-n" id="sFiles">—</span><span class="stat-l">My Files</span></div>
+      <div class="stat-pill"><span class="stat-n">200MB</span><span class="stat-l">Max Size</span></div>
+      <div class="stat-pill"><span class="stat-n">∞</span><span class="stat-l">Keeps Forever</span></div>
+    </div>
+  </div>
+
+  <div class="upload-card">
+    <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
+      <div class="dz-box">📁</div>
+      <div class="dz-t">Drop your file here</div>
+      <div class="dz-s">Images · Videos · Documents · Max 200MB</div>
+      <button class="btn-browse" onclick="event.stopPropagation();document.getElementById('fi').click()">Browse Files</button>
+      <input type="file" id="fi" multiple>
+    </div>
+    <div class="url-row">
+      <input class="url-input" id="urlIn" placeholder="Or paste a URL...">
+      <button class="btn-go" onclick="upUrl()">Upload</button>
+    </div>
+    <div class="prog" id="prog">
+      <div class="prog-track"><div class="prog-fill" id="pf"></div></div>
+      <div class="prog-lbl" id="pl">Uploading...</div>
+    </div>
+    <div class="result" id="res">
+      <div class="res-lbl" id="rl">Upload Complete — Direct Link</div>
+      <div class="res-row">
+        <input type="text" class="res-url" id="ru" readonly>
+        <button class="btn-copy" id="cb" onclick="cpUrl()">Copy</button>
+      </div>
+      <div class="res-preview" id="rp"></div>
+      <div class="res-meta" id="rm"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="section" id="history">
+  <div class="sec-head">
+    <div><span class="sec-title">My Uploads</span><span class="sec-badge">this device only</span></div>
+    <button class="btn-clr" onclick="clearHist()">Clear All</button>
+  </div>
+  <div class="hist-grid" id="hg">
+    <div class="empty" id="emptyMsg">No uploads yet — drop a file above to get started.</div>
+  </div>
+</div>
+
+<!-- API -->
+<div class="section" id="api">
+  <div class="sec-head"><span class="sec-title">Python API</span></div>
+  <div class="api-grid">
+    <div class="api-card">
+      <div class="api-t">Quick Start</div>
+      <div class="api-s">pip3 install badbox</div>
+      <pre id="qpre">from badbox import upload_file
+
+url = upload_file("photo.jpg")
+print(url)</pre>
+    </div>
+    <div class="api-card">
+      <div class="api-t">Telegram Bot</div>
+      <div class="api-s">Works with any bot framework</div>
+      <pre>from badbox import upload_bytes
+
+async def handle_photo(update, ctx):
+    photo = update.message.photo[-1]
+    f = await ctx.bot.get_file(photo.file_id)
+    data = await f.download_as_bytearray()
+    url = upload_bytes(bytes(data), "photo.jpg")
+    await update.message.reply_text(url)</pre>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="fl">BadBox — Personal File Server</div>
+  <div class="fr">
+    <a href="/docs" target="_blank">API Docs</a>
+    <a href="/health" target="_blank">Health</a>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const HKEY='badbox_hist_v1';
+const IMGS=new Set(['jpg','jpeg','png','gif','webp','svg','bmp','avif']);
+let hist=JSON.parse(localStorage.getItem(HKEY)||'[]');
+
+function save(){localStorage.setItem(HKEY,JSON.stringify(hist));}
+function addH(d){
+  hist.unshift({name:d.original_name,url:d.url,size:d.size,ext:d.ext||'',
+    time:new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'})});
+  if(hist.length>100)hist.pop();
+  save();render();updateStats();
+}
+function clearHist(){hist=[];save();render();updateStats();toast('History cleared');}
+function render(){
+  const g=document.getElementById('hg'),e=document.getElementById('emptyMsg');
+  if(!hist.length){g.innerHTML='';g.appendChild(e);e.style.display='block';return;}
+  e.style.display='none';
+  g.innerHTML=hist.map(h=>{
+    const img=IMGS.has((h.ext||'').toLowerCase());
+    const th=img?`<div class="hcard-img"><img src="${h.url}" onerror="this.parentNode.textContent='📄'"></div>`:`<div class="hcard-img">📄</div>`;
+    return`<div class="hcard" onclick="cp('${h.url}')">${th}<div class="hcard-name">${h.name}</div><div class="hcard-url">${h.url}</div><div class="hcard-foot"><span>${h.size||''}</span><span>${h.time}</span></div></div>`;
+  }).join('');
+}
+function updateStats(){document.getElementById('sFiles').textContent=hist.length;}
+
+// Drag drop
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])doUp(e.dataTransfer.files[0]);});
+document.getElementById('fi').addEventListener('change',e=>{if(e.target.files[0])doUp(e.target.files[0]);});
+
+async function doUp(file){
+  showP(true);sp(10,`Uploading ${file.name}...`);
+  const fd=new FormData();fd.append('file',file);
+  let p=10;const iv=setInterval(()=>{p=Math.min(p+5,88);sp(p,`Uploading ${file.name}...`);},170);
+  try{
+    const r=await fetch('/upload',{method:'POST',body:fd});clearInterval(iv);
+    if(!r.ok){const e=await r.json();throw new Error(e.detail);}
+    const d=await r.json();sp(100,'Done!');
+    setTimeout(()=>{showP(false);showRes(d);addH(d);},300);
+  }catch(e){clearInterval(iv);showP(false);showErr(e.message);}
+}
+
+async function upUrl(){
+  const u=document.getElementById('urlIn').value.trim();
+  if(!u){toast('Paste a URL first');return;}
+  showP(true);sp(30,'Fetching...');
+  const fd=new FormData();fd.append('url',u);
+  try{
+    sp(65,'Saving...');
+    const r=await fetch('/upload-url',{method:'POST',body:fd});
+    if(!r.ok){const e=await r.json();throw new Error(e.detail);}
+    const d=await r.json();sp(100,'Done!');
+    setTimeout(()=>{showP(false);showRes(d);addH(d);document.getElementById('urlIn').value='';},300);
+  }catch(e){showP(false);showErr(e.message);}
+}
+
+function showRes(d){
+  const b=document.getElementById('res');b.className='result ok';b.style.display='block';
+  document.getElementById('rl').textContent='Upload Complete — Direct Link';
+  document.getElementById('ru').value=d.url;
+  document.getElementById('cb').textContent='Copy';document.getElementById('cb').className='btn-copy';
+  const img=IMGS.has((d.ext||'').toLowerCase());
+  document.getElementById('rp').innerHTML=img?`<img src="${d.url}" onerror="this.style.display='none'">`:'';
+  document.getElementById('rm').innerHTML=`<div class="rm">File:<span>${d.original_name}</span></div><div class="rm">Size:<span>${d.size}</span></div><div class="rm">ID:<span>${d.filename}</span></div>`;
+}
+function showErr(m){
+  const b=document.getElementById('res');b.className='result fail';b.style.display='block';
+  b.innerHTML=`<div class="res-lbl" style="color:var(--err)">Error: ${m}</div>`;
+}
+function showP(s){document.getElementById('prog').style.display=s?'block':'none';if(!s)document.getElementById('res').style.display='none';}
+function sp(v,l){document.getElementById('pf').style.width=v+'%';document.getElementById('pl').textContent=l;}
+function cpUrl(){const u=document.getElementById('ru').value;if(!u)return;cp(u);const b=document.getElementById('cb');b.textContent='Copied!';b.className='btn-copy ok';setTimeout(()=>{b.textContent='Copy';b.className='btn-copy';},2000);}
+function cp(u){navigator.clipboard.writeText(u).then(()=>toast('Link copied!'));}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+
+document.getElementById('qpre').textContent=`from badbox import upload_file\n\nurl = upload_file("photo.jpg")\nprint(url)\n# → ${location.origin}/uploads/abc12345.jpg`;
+
+render();updateStats();
+</script>
+</body>
+</html>

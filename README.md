@@ -58,17 +58,31 @@ async def handle_photo(update, context):
 
 ```python
 from badbox import upload_file
+from pyrogram import Client, filters
 import os
+import asyncio
 
 @Client.on_message(filters.command(["bb"], ".") & filters.me)
 async def upload_to_badbox(client, message):
     if not message.reply_to_message:
-        return
+        return await message.reply("Reply to a file")
+
     m = await message.edit("`Uploading...`")
+
     file = await message.reply_to_message.download()
-    url = upload_file(file)
-    await m.edit(f"**{url}**")
-    os.remove(file)
+
+    try:
+        # run blocking function in thread
+        url = await asyncio.to_thread(upload_file, file)
+
+        await m.edit(f"**Uploaded ✅**\n{url}")
+
+    except Exception as e:
+        await m.edit(f"❌ Upload failed:\n`{e}`")
+
+    finally:
+        if os.path.exists(file):
+            os.remove(file)
 ```
 
 ## Links

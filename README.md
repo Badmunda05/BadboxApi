@@ -64,25 +64,32 @@ import asyncio
 
 @Client.on_message(filters.command(["bb"], ".") & filters.me)
 async def upload_to_badbox(client, message):
-    if not message.reply_to_message:
-        return await message.reply("Reply to a file")
 
-    m = await message.edit("`Uploading...`")
+    reply = message.reply_to_message
 
-    file = await message.reply_to_message.download()
+    if not reply:
+        return await message.reply("❌ Reply to a file")
+
+    m = await message.edit("📥 Downloading...")
 
     try:
-        # run blocking function in thread
+        file = await reply.download()
+        await m.edit("📤 Uploading...")
+
+        # run blocking function safely
         url = await asyncio.to_thread(upload_file, file)
 
-        await m.edit(f"**Uploaded ✅**\n{url}")
+        await m.edit(f"✅ **Uploaded Successfully**\n\n🔗 {url}")
 
     except Exception as e:
-        await m.edit(f"❌ Upload failed:\n`{e}`")
+        await m.edit(f"❌ Error:\n`{e}`")
 
     finally:
-        if os.path.exists(file):
-            os.remove(file)
+        try:
+            if 'file' in locals() and os.path.exists(file):
+                os.remove(file)
+        except:
+            pass
 ```
 
 ## Links

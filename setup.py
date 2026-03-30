@@ -26,7 +26,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
     keywords='telegram file hosting upload cdn self-hosted',
-    url='https://github.com/BadMunda/badbox',
+    url='https://github.com/PbxBad/BadboxApi',
     packages=find_packages(),
     install_requires=['requests>=2.28.0'],
     long_description=long_description,

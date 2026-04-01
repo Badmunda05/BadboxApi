@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='badbox',
-    version='1.0.0',
+    version='1.0.1',
     author='BadMunda',
     author_email='',
     description='Self-hosted file hosting — upload files, get direct URLs.',
